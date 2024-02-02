@@ -1,0 +1,24 @@
+[project]
+name = "evdutyapi"
+version = "0.0.1"
+authors = [
+    { name = "Francois Perron", email = "fperron@gmail.com" },
+]
+description = "Library to communicate with EVduty REST api"
+readme = "README.md"
+requires-python = ">=3.12"
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Home Automation",
+]
+
+[project.urls]
+Homepage = "https://github.com/happydev-ca/evduty-api"
+Issues = "https://github.com/happydev-ca/evduty-api/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

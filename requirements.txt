@@ -1,0 +1,6 @@
+# prod
+aiohttp==3.9.3
+
+# dev
+build==1.0.3
+pip==23.3.2
