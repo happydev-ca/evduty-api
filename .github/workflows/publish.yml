@@ -36,7 +36,11 @@ jobs:
       needs:
       - build
       runs-on: ubuntu-latest
-      environment: test
+
+      environment:
+        name: test
+        url: https://test.pypi.org/p/evduty-api
+
       permissions:
         id-token: write
 
