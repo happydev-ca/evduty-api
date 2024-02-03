@@ -43,6 +43,3 @@ class ChargingSessionResponse:
                 }
             }
         }
-
-# costLocal: en cent (0.10039999999999999)
-# pour estimated cost = 0.10039999999999999 * (energyConsumed)36459.92 / 1000 = 3.66$
