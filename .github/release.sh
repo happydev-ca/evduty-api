@@ -24,6 +24,7 @@ change_pyproject() {
 }
 
 git_tag () {
+  git commit -am "${1}"
   git tag "${1}" -am "${1}"
 }
 
