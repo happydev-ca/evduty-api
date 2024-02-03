@@ -18,7 +18,15 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
                 TerminalResponse(id="terminal_id", name="terminal_name", status="inUse", charge_box_identity="identity", firmware_version="version").to_json()
             ]).to_json(),
         ]
-        get_session_response = ChargingSessionResponse(is_active=True).to_json()
+        get_session_response = (ChargingSessionResponse(is_active=True,
+                                                        is_charging=True,
+                                                        volt=240,
+                                                        amp=13.9,
+                                                        power=3336,
+                                                        energy_consumed=36459.92,
+                                                        charge_start_date=1706897191,
+                                                        duration=77602.7)
+                                .to_json())
 
         expected_stations = [StationResponse.from_json(s) for s in get_stations_response]
 
