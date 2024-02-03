@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 increment_version() {
   local delimiter=.
