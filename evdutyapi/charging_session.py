@@ -3,12 +3,13 @@ from typing import TypeAlias
 
 Volt: TypeAlias = float
 Amp: TypeAlias = float
+Watt: TypeAlias = float
 Wh: TypeAlias = float
 Dollar: TypeAlias = float
 
 
 class ChargingSession:
-    def __init__(self, is_active: bool, is_charging: bool, volt: Volt, amp: Amp, power: Wh, energy_consumed: Wh, start_date: datetime, duration: timedelta, cost: Dollar):
+    def __init__(self, is_active: bool, is_charging: bool, volt: Volt, amp: Amp, power: Watt, energy_consumed: Wh, start_date: datetime, duration: timedelta, cost: Dollar):
         self.is_active = is_active
         self.is_charging = is_charging
         self.volt = volt
