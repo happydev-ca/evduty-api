@@ -1,5 +1,6 @@
-from unittest import IsolatedAsyncioTestCase
+import aiohttp
 from aioresponses import aioresponses
+from unittest import IsolatedAsyncioTestCase
 from evdutyapi import EVDutyApi
 
 
@@ -20,8 +21,11 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
                               status=200,
                               payload=expected_stations)
 
-            async with EVDutyApi(username, password) as api:
+            async with aiohttp.ClientSession() as session:
+                api = EVDutyApi(username, password, session)
+
                 stations = await api.async_get_stations()
+
                 self.assertEqual(stations, expected_stations)
 
                 evduty_server.assert_called_with('https://api.evduty.net/v1/account/login',
