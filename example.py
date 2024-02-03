@@ -10,9 +10,9 @@ async def run():
         api = EVDutyApi(os.environ['EMAIL'], os.environ['PASSWORD'], session)
         stations = await api.async_get_stations()
         for station in stations:
-            print("station:  " + station["id"])
-            for terminal in station["terminals"]:
-                print("terminal: " + terminal["id"], terminal["status"])
+            print(station)
+            for terminal in station.terminals:
+                print(terminal)
 
 
 asyncio.run(run())

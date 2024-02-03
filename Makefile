@@ -4,6 +4,7 @@ install:
 	pip install -r requirements.txt
 
 test:
+	ruff . && \
 	python3 -m unittest discover tests
 
 build:

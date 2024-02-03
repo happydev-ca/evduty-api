@@ -1,5 +1,7 @@
 import aiohttp
 
+from evdutyapi.station import Station
+
 
 class EVDutyApi:
     def __init__(self, username: str, password: str, session: aiohttp.ClientSession):
@@ -22,4 +24,5 @@ class EVDutyApi:
         async with self.session.get('https://api.evduty.net/v1/account/stations') as response:
             response.raise_for_status()
             stations = await response.json()
+            stations = [Station.from_json(s) for s in stations]
             return stations

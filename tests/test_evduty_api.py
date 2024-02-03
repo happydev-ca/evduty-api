@@ -2,6 +2,9 @@ import aiohttp
 from aioresponses import aioresponses
 from unittest import IsolatedAsyncioTestCase
 from evdutyapi import EVDutyApi
+from evdutyapi import Station
+from tests.api_response.station_response import StationResponse
+from tests.api_response.terminal_response import TerminalResponse
 
 
 class EVdutyApiTest(IsolatedAsyncioTestCase):
@@ -10,7 +13,12 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
         username = 'username'
         password = 'password'
         token = "token"
-        expected_stations = [{"station1": "value1"}, {"station2": "value2"}]
+        json = [
+            StationResponse().to_json(),
+            StationResponse(terminals=[TerminalResponse().to_json(), TerminalResponse().to_json()]).to_json(),
+        ]
+
+        expected_stations = [Station.from_json(s) for s in json]
 
         with aioresponses() as evduty_server:
             evduty_server.post('https://api.evduty.net/v1/account/login',
@@ -19,7 +27,7 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
 
             evduty_server.get('https://api.evduty.net/v1/account/stations',
                               status=200,
-                              payload=expected_stations)
+                              payload=json)
 
             async with aiohttp.ClientSession() as session:
                 api = EVDutyApi(username, password, session)
