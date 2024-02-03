@@ -25,6 +25,6 @@ class ChargingSessionResponseTest(unittest.TestCase):
         self.assertEqual(session.amp, 13.9)
         self.assertEqual(session.power, 3336)
         self.assertEqual(session.energy_consumed, 36459.92)
-        self.assertEqual(session.start_date, datetime(2024, 2, 2, 13, 6, 31))
+        self.assertEqual(datetime.timestamp(session.start_date), 1706897191)
         self.assertEqual(session.duration, timedelta(seconds=77602.7))
         self.assertEqual(session.cost, 3.66)
