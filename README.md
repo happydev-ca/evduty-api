@@ -1,3 +1,5 @@
+[![Build, test and publish](https://github.com/happydev-ca/evduty-api/actions/workflows/publish.yml/badge.svg)](https://github.com/happydev-ca/evduty-api/actions/workflows/publish.yml)
+
 # evduty-api
 Library to communicate with EVduty REST API.
 
