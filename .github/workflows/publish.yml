@@ -21,7 +21,7 @@ jobs:
         run: ruff --output-format=github .
 
       - name: Test
-        run: python3 -m unittest discover tests
+        run: python3 -m unittest
 
       - name: Build
         run: python3 -m build
