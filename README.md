@@ -24,3 +24,10 @@ python3 -m unittest discover tests
 ```shell
 python3 -m build
 ```
+
+### Release version
+```shell
+#sed -i '' 's/z.z.z/x.x.x/g' pyproject.toml
+#git tag x.x.x -a -m "x.x.x"
+#git push --tags
+```
