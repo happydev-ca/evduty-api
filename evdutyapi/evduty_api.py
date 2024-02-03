@@ -1,6 +1,6 @@
 import aiohttp
 
-from evdutyapi.api_response.session_response import SessionResponse
+from evdutyapi.api_response.charging_session_response import ChargingSessionResponse
 from evdutyapi.api_response.station_response import StationResponse
 
 
@@ -36,4 +36,4 @@ class EVDutyApi:
                     response.raise_for_status()
                     if await response.text() != "":
                         json_session = await response.json()
-                        terminal.session = SessionResponse.from_json(json_session)
+                        terminal.session = ChargingSessionResponse.from_json(json_session)

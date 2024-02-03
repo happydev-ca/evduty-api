@@ -1,14 +1,8 @@
-from enum import Enum
-
-from evdutyapi import Terminal
-
-
-class StationStatus(Enum):
-    available = 'available'
+from evdutyapi import Terminal, ChargingStatus
 
 
 class Station:
-    def __init__(self, id: str, name: str, status: StationStatus, terminals: list[Terminal]):
+    def __init__(self, id: str, name: str, status: ChargingStatus, terminals: list[Terminal]):
         self.id = id
         self.name = name
         self.status = status

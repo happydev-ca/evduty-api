@@ -1,4 +1,4 @@
-from evdutyapi import Terminal, Session, TerminalStatus
+from evdutyapi import Terminal, ChargingSession, ChargingStatus
 
 
 class TerminalResponse:
@@ -13,10 +13,10 @@ class TerminalResponse:
     def from_json(cls, data):
         return Terminal(id=data.get('id'),
                         name=data.get('name'),
-                        status=TerminalStatus(data.get('status')),
+                        status=ChargingStatus(data.get('status')),
                         charge_box_identity=data.get('chargeBoxIdentity'),
                         firmware_version=data.get('firmwareVersion'),
-                        session=Session.no_session())
+                        session=ChargingSession.no_session())
 
     def to_json(self):
         return {

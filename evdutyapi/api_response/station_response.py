@@ -1,4 +1,4 @@
-from evdutyapi import Station, StationStatus
+from evdutyapi import Station, ChargingStatus
 from evdutyapi.api_response.terminal_response import TerminalResponse
 
 
@@ -15,7 +15,7 @@ class StationResponse:
     def from_json(cls, data):
         return Station(id=data.get('id'),
                        name=data.get('name'),
-                       status=StationStatus(data.get('status')),
+                       status=ChargingStatus(data.get('status')),
                        terminals=[TerminalResponse.from_json(t) for t in data.get('terminals')])
 
     def to_json(self):

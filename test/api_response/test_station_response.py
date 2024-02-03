@@ -1,6 +1,6 @@
 import unittest
 
-from evdutyapi import StationStatus
+from evdutyapi import ChargingStatus
 from evdutyapi.api_response.station_response import StationResponse
 
 
@@ -12,5 +12,5 @@ class StationResponseTest(unittest.TestCase):
 
         self.assertEqual(station.id, "1")
         self.assertEqual(station.name, "A")
-        self.assertEqual(station.status, StationStatus.available)
+        self.assertEqual(station.status, ChargingStatus.available)
         self.assertEqual(station.terminals, [])

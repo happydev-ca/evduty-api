@@ -2,7 +2,7 @@ import aiohttp
 from aioresponses import aioresponses
 from unittest import IsolatedAsyncioTestCase
 from evdutyapi import EVDutyApi
-from evdutyapi.api_response.session_response import SessionResponse
+from evdutyapi.api_response.charging_session_response import ChargingSessionResponse
 from evdutyapi.api_response.station_response import StationResponse
 from evdutyapi.api_response.terminal_response import TerminalResponse
 
@@ -18,7 +18,7 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
                 TerminalResponse(id="terminal_id", name="terminal_name", status="inUse", charge_box_identity="identity", firmware_version="version").to_json()
             ]).to_json(),
         ]
-        get_session_response = SessionResponse(is_active=True).to_json()
+        get_session_response = ChargingSessionResponse(is_active=True).to_json()
 
         expected_stations = [StationResponse.from_json(s) for s in get_stations_response]
 

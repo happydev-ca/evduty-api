@@ -1,15 +1,8 @@
-from enum import Enum
-
-from evdutyapi import Session
-
-
-class TerminalStatus(Enum):
-    available = 'available'
-    in_use = 'inUse'
+from evdutyapi import ChargingSession, ChargingStatus
 
 
 class Terminal:
-    def __init__(self, id: str, name: str, status: TerminalStatus, charge_box_identity: str, firmware_version: str, session: Session):
+    def __init__(self, id: str, name: str, status: ChargingStatus, charge_box_identity: str, firmware_version: str, session: ChargingSession):
         self.id = id
         self.name = name
         self.status = status

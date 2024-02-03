@@ -1,11 +1,13 @@
 __all__ = [
-    "Session",
-    "Terminal", "TerminalStatus",
-    "Station", "StationStatus",
+    "ChargingStatus",
+    "ChargingSession",
+    "Terminal",
+    "Station",
     "EVDutyApi",
 ]
 
-from evdutyapi.session import Session
-from evdutyapi.terminal import Terminal, TerminalStatus
-from evdutyapi.station import Station, StationStatus
+from evdutyapi.charging_status import ChargingStatus
+from evdutyapi.charging_session import ChargingSession
+from evdutyapi.terminal import Terminal
+from evdutyapi.station import Station
 from evdutyapi.evduty_api import EVDutyApi
