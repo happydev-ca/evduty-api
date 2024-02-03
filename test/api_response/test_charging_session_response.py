@@ -13,7 +13,8 @@ class ChargingSessionResponseTest(unittest.TestCase):
                                         power=3336,
                                         energy_consumed=36459.92,
                                         charge_start_date=1706897191,
-                                        duration=77602.7)
+                                        duration=77602.7,
+                                        cost_local=0.10039999999999999)
                 .to_json())
 
         session = ChargingSessionResponse.from_json(json)
@@ -26,3 +27,4 @@ class ChargingSessionResponseTest(unittest.TestCase):
         self.assertEqual(session.energy_consumed, 36459.92)
         self.assertEqual(session.start_date, datetime(2024, 2, 2, 13, 6, 31))
         self.assertEqual(session.duration, timedelta(seconds=77602.7))
+        self.assertEqual(session.cost, 3.66)

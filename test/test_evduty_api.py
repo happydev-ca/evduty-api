@@ -25,7 +25,8 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
                                                         power=3336,
                                                         energy_consumed=36459.92,
                                                         charge_start_date=1706897191,
-                                                        duration=77602.7)
+                                                        duration=77602.7,
+                                                        cost_local=0.10039)
                                 .to_json())
 
         expected_stations = [StationResponse.from_json(s) for s in get_stations_response]

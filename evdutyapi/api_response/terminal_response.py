@@ -11,11 +11,11 @@ class TerminalResponse:
 
     @classmethod
     def from_json(cls, data):
-        return Terminal(id=data.get('id'),
-                        name=data.get('name'),
-                        status=ChargingStatus(data.get('status')),
-                        charge_box_identity=data.get('chargeBoxIdentity'),
-                        firmware_version=data.get('firmwareVersion'),
+        return Terminal(id=data['id'],
+                        name=data['name'],
+                        status=ChargingStatus(data['status']),
+                        charge_box_identity=data['chargeBoxIdentity'],
+                        firmware_version=data['firmwareVersion'],
                         session=ChargingSession.no_session())
 
     def to_json(self):

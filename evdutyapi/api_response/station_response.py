@@ -13,10 +13,10 @@ class StationResponse:
 
     @classmethod
     def from_json(cls, data):
-        return Station(id=data.get('id'),
-                       name=data.get('name'),
-                       status=ChargingStatus(data.get('status')),
-                       terminals=[TerminalResponse.from_json(t) for t in data.get('terminals')])
+        return Station(id=data['id'],
+                       name=data['name'],
+                       status=ChargingStatus(data['status']),
+                       terminals=[TerminalResponse.from_json(t) for t in data['terminals']])
 
     def to_json(self):
         return {
