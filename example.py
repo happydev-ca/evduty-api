@@ -13,6 +13,7 @@ async def run():
             print(station)
             for terminal in station.terminals:
                 print(terminal)
+                print(terminal.session)
 
 
 asyncio.run(run())

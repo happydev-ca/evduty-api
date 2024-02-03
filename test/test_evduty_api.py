@@ -2,9 +2,9 @@ import aiohttp
 from aioresponses import aioresponses
 from unittest import IsolatedAsyncioTestCase
 from evdutyapi import EVDutyApi
-from evdutyapi import Station
-from tests.api_response.station_response import StationResponse
-from tests.api_response.terminal_response import TerminalResponse
+from evdutyapi.api_response.session_response import SessionResponse
+from evdutyapi.api_response.station_response import StationResponse
+from evdutyapi.api_response.terminal_response import TerminalResponse
 
 
 class EVdutyApiTest(IsolatedAsyncioTestCase):
@@ -13,12 +13,14 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
         username = 'username'
         password = 'password'
         token = "token"
-        json = [
-            StationResponse().to_json(),
-            StationResponse(terminals=[TerminalResponse().to_json(), TerminalResponse().to_json()]).to_json(),
+        get_stations_response = [
+            StationResponse(id="station_id", name="station_name", status="available", terminals=[
+                TerminalResponse(id="terminal_id", name="terminal_name", status="inUse", charge_box_identity="identity", firmware_version="version").to_json()
+            ]).to_json(),
         ]
+        get_session_response = SessionResponse(is_active=True).to_json()
 
-        expected_stations = [Station.from_json(s) for s in json]
+        expected_stations = [StationResponse.from_json(s) for s in get_stations_response]
 
         with aioresponses() as evduty_server:
             evduty_server.post('https://api.evduty.net/v1/account/login',
@@ -27,7 +29,11 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
 
             evduty_server.get('https://api.evduty.net/v1/account/stations',
                               status=200,
-                              payload=json)
+                              payload=get_stations_response)
+
+            evduty_server.get('https://api.evduty.net/v1/account/stations/station_id/terminals/terminal_id/session',
+                              status=200,
+                              payload=get_session_response)
 
             async with aiohttp.ClientSession() as session:
                 api = EVDutyApi(username, password, session)
@@ -39,5 +45,3 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
                 evduty_server.assert_called_with('https://api.evduty.net/v1/account/login',
                                                  method="POST",
                                                  json={'device': {'id': '', 'model': '', 'type': 'ANDROID'}, 'email': username, 'password': password})
-                evduty_server.assert_called_with('https://api.evduty.net/v1/account/stations',
-                                                 method="GET")

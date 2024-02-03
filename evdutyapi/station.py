@@ -14,13 +14,6 @@ class Station:
         self.status = status
         self.terminals = terminals
 
-    @classmethod
-    def from_json(cls, data):
-        return cls(id=data.get('id'),
-                   name=data.get('name'),
-                   status=StationStatus(data.get('status')),
-                   terminals=[Terminal.from_json(t) for t in data.get('terminals')])
-
     def __repr__(self):
         return f"<Station id:{self.id} name:{self.name} status:{self.status} terminals:{len(self.terminals)}>"
 

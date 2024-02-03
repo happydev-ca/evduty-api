@@ -1,3 +1,5 @@
+.PHONY : install test build release
+
 install:
 	python3 -m venv .venv \
 	source .venv/bin/activate \
@@ -5,7 +7,7 @@ install:
 
 test:
 	ruff . && \
-	python3 -m unittest discover tests
+	python3 -m unittest
 
 build:
 	python3 -m build
