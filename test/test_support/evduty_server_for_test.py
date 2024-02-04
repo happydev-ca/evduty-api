@@ -33,6 +33,7 @@ class EVDutyServerForTest:
     def assert_called_with(self, url, method, *args, **kwargs):
         self.server.assert_called_with(f'{self.base_url}{url}', method, *args, **kwargs)
 
-    def assert_called_n_times_with(self, times, url, method):
+    def assert_called_n_times_with(self, times, url, method, headers, json):
         key = (method, URL(f'{self.base_url}{url}'))
         assert len(self.server.requests[key]) == times
+        self.assert_called_with(url, method, headers=headers, json=json)

@@ -17,40 +17,46 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
     async def test_authenticate_user(self):
         with EVDutyServerForTest() as evduty_server:
             await evduty_server.prepare_login_response({'accessToken': 'hello', 'expiresIn': 43200})
-            await evduty_server.prepare_stations_response()
 
             async with aiohttp.ClientSession() as session:
                 api = EVDutyApi(self.username, self.password, session)
-                await api.async_get_stations()
+                await api.async_authenticate()
 
                 evduty_server.assert_called_with(url='/v1/account/login',
-                                                 method="POST",
+                                                 method='POST',
+                                                 headers={'Content-Type': 'application/json'},
                                                  json={'device': {'id': '', 'model': '', 'type': 'ANDROID'}, 'email': self.username, 'password': self.password})
 
     async def test_reuse_token_when_it_is_valid(self):
         with EVDutyServerForTest() as evduty_server:
             await evduty_server.prepare_login_response({'accessToken': 'hello', 'expiresIn': 1000})
-            await evduty_server.prepare_stations_response()
 
             async with aiohttp.ClientSession() as session:
                 api = EVDutyApi(self.username, self.password, session)
-                await api.async_get_stations()
-                await api.async_get_stations()
+                await api.async_authenticate()
+                await api.async_authenticate()
 
-                evduty_server.assert_called_n_times_with(times=1, url='/v1/account/login', method="POST")
+                evduty_server.assert_called_n_times_with(times=1,
+                                                         url='/v1/account/login',
+                                                         method='POST',
+                                                         headers={'Content-Type': 'application/json'},
+                                                         json={'device': {'id': '', 'model': '', 'type': 'ANDROID'}, 'email': self.username, 'password': self.password})
 
     async def test_reauthorize_when_token_is_invalid(self):
         with EVDutyServerForTest() as evduty_server:
             await evduty_server.prepare_login_response({'accessToken': 'hello', 'expiresIn': 0})
-            await evduty_server.prepare_stations_response()
 
             async with aiohttp.ClientSession() as session:
                 api = EVDutyApi(self.username, self.password, session)
-                await api.async_get_stations()
+                await api.async_authenticate()
                 await asyncio.sleep(0)
-                await api.async_get_stations()
+                await api.async_authenticate()
 
-                evduty_server.assert_called_n_times_with(times=2, url='/v1/account/login', method="POST")
+                evduty_server.assert_called_n_times_with(times=2,
+                                                         url='/v1/account/login',
+                                                         method='POST',
+                                                         headers={'Content-Type': 'application/json', 'Authorization': 'Bearer hello'},
+                                                         json={'device': {'id': '', 'model': '', 'type': 'ANDROID'}, 'email': self.username, 'password': self.password})
 
     async def test_async_get_stations(self):
         with EVDutyServerForTest() as evduty_server:
@@ -71,8 +77,8 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
     @staticmethod
     async def any_stations_response():
         return [
-            StationResponse(id="station_id", name="station_name", status="available", terminals=[
-                TerminalResponse(id="terminal_id", name="terminal_name", status="inUse", charge_box_identity="identity", firmware_version="version").to_json()
+            StationResponse(id='station_id', name='station_name', status='available', terminals=[
+                TerminalResponse(id='terminal_id', name='terminal_name', status='inUse', charge_box_identity='identity', firmware_version='version').to_json()
             ]).to_json(),
         ]
 
