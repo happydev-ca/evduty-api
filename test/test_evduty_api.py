@@ -1,7 +1,11 @@
 import asyncio
+from http import HTTPStatus
 
 import aiohttp
 from unittest import IsolatedAsyncioTestCase
+
+from aiohttp import ClientResponseError
+
 from evdutyapi import EVDutyApi
 from evdutyapi.api_response.charging_session_response import ChargingSessionResponse
 from evdutyapi.api_response.station_response import StationResponse
@@ -42,7 +46,7 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
                                                          headers={'Content-Type': 'application/json'},
                                                          json={'device': {'id': '', 'model': '', 'type': 'ANDROID'}, 'email': self.username, 'password': self.password})
 
-    async def test_reauthorize_when_token_is_invalid(self):
+    async def test_reauthorize_when_token_expires(self):
         with EVDutyServerForTest() as evduty_server:
             await evduty_server.prepare_login_response({'accessToken': 'hello', 'expiresIn': 0})
 
@@ -56,6 +60,26 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
                                                          url='/v1/account/login',
                                                          method='POST',
                                                          headers={'Content-Type': 'application/json', 'Authorization': 'Bearer hello'},
+                                                         json={'device': {'id': '', 'model': '', 'type': 'ANDROID'}, 'email': self.username, 'password': self.password})
+
+    async def test_reauthorize_when_token_is_invalid(self):
+        with EVDutyServerForTest() as evduty_server:
+            await evduty_server.prepare_login_response({'accessToken': 'hello', 'expiresIn': 1000})
+            await evduty_server.prepare_stations_response(status=HTTPStatus.FORBIDDEN, repeat=False)
+
+            async with aiohttp.ClientSession() as session:
+                api = EVDutyApi(self.username, self.password, session)
+                try:
+                    await api.async_get_stations()
+                except ClientResponseError:
+                    pass
+
+                await api.async_authenticate()
+
+                evduty_server.assert_called_n_times_with(times=2,
+                                                         url='/v1/account/login',
+                                                         method='POST',
+                                                         headers={'Content-Type': 'application/json'},
                                                          json={'device': {'id': '', 'model': '', 'type': 'ANDROID'}, 'email': self.username, 'password': self.password})
 
     async def test_async_get_stations(self):
