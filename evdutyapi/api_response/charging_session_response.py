@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
 from evdutyapi import ChargingSession
 
@@ -23,7 +24,7 @@ class ChargingSessionResponse:
                                amp=data['amp'],
                                power=data['power'],
                                energy_consumed=data['energyConsumed'],
-                               start_date=datetime.fromtimestamp(data['chargeStartDate']),
+                               start_date=datetime.fromtimestamp(data['chargeStartDate'], ZoneInfo('US/Eastern')),
                                duration=timedelta(seconds=data['duration']),
                                cost=round(data['station']['terminal']['costLocal'] * data['energyConsumed'] / 1000, 2))
 
