@@ -1,4 +1,4 @@
-.PHONY : install test build release
+.PHONY : install test coverage build release
 
 install:
 	python3 -m venv .venv && \
@@ -8,6 +8,10 @@ install:
 test:
 	ruff . && \
 	python3 -m unittest
+
+coverage:
+	coverage run --branch -m unittest
+	coverage html
 
 build:
 	python3 -m build

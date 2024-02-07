@@ -6,7 +6,7 @@ from unittest import IsolatedAsyncioTestCase
 
 from aiohttp import ClientResponseError
 
-from evdutyapi import EVDutyApi
+from evdutyapi import EVDutyApi, ChargingSession
 from evdutyapi.api_response.charging_session_response import ChargingSessionResponse
 from evdutyapi.api_response.station_response import StationResponse
 from evdutyapi.api_response.terminal_response import TerminalResponse
@@ -97,6 +97,20 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
 
                 expected_stations = [StationResponse.from_json(s) for s in stations_response]
                 self.assertEqual(stations, expected_stations)
+
+    async def test_async_no_charging_session(self):
+        with EVDutyServerForTest() as evduty_server:
+            stations_response = await self.any_stations_response()
+
+            await evduty_server.prepare_login_response()
+            await evduty_server.prepare_stations_response(stations_response)
+            await evduty_server.prepare_session_response(None)
+
+            async with aiohttp.ClientSession() as session:
+                api = EVDutyApi(self.username, self.password, session)
+                stations = await api.async_get_stations()
+
+                self.assertEqual(stations[0].terminals[0].session, ChargingSession.no_session())
 
     @staticmethod
     async def any_stations_response():

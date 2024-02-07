@@ -27,9 +27,7 @@ class EVDutyServerForTest:
             body = []
         self.server.get(f'{self.base_url}/v1/account/stations', status=status, payload=body, repeat=repeat)
 
-    async def prepare_session_response(self, body=None):
-        if body is None:
-            body = []
+    async def prepare_session_response(self, body):
         self.server.get(f'{self.base_url}/v1/account/stations/station_id/terminals/terminal_id/session', status=HTTPStatus.OK, payload=body, repeat=True)
 
     def assert_called_with(self, url, method, *args, **kwargs):

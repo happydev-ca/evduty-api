@@ -14,3 +14,10 @@ class StationResponseTest(unittest.TestCase):
         self.assertEqual(station.name, "A")
         self.assertEqual(station.status, ChargingStatus.available)
         self.assertEqual(station.terminals, [])
+
+    def test_set_empty_terminals_on_default(self):
+        json = StationResponse(id="1", name="A", status="available", terminals=None).to_json()
+
+        station = StationResponse.from_json(json)
+
+        self.assertEqual(station.terminals, [])
