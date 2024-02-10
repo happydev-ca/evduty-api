@@ -14,6 +14,7 @@ async def run():
             for terminal in station.terminals:
                 print(terminal)
                 print(terminal.session)
+                print(terminal.network_info)
 
 
 asyncio.run(run())

@@ -17,17 +17,20 @@ class EVDutyServerForTest:
     def __exit__(self, *args):
         self.server.__exit__(*args)
 
-    async def prepare_login_response(self, body=None, status=HTTPStatus.OK, repeat=True):
+    def prepare_login_response(self, body=None, status=HTTPStatus.OK, repeat=True):
         if body is None:
             body = {'accessToken': 'token', 'expiresIn': 43200}
         self.server.post(f'{self.base_url}/v1/account/login', status=status, payload=body, repeat=repeat)
 
-    async def prepare_stations_response(self, body=None, status=HTTPStatus.OK, repeat=True):
+    def prepare_stations_response(self, body=None, status=HTTPStatus.OK, repeat=True):
         if body is None:
             body = []
         self.server.get(f'{self.base_url}/v1/account/stations', status=status, payload=body, repeat=repeat)
 
-    async def prepare_session_response(self, body):
+    def prepare_terminal_details_response(self, body):
+        self.server.get(f'{self.base_url}/v1/account/stations/station_id/terminals/terminal_id', status=HTTPStatus.OK, payload=body, repeat=True)
+
+    def prepare_session_response(self, body):
         self.server.get(f'{self.base_url}/v1/account/stations/station_id/terminals/terminal_id/session', status=HTTPStatus.OK, payload=body, repeat=True)
 
     def assert_called_with(self, url, method, *args, **kwargs):

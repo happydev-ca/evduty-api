@@ -1,9 +1,11 @@
 [![Build, test and publish](https://github.com/happydev-ca/evduty-api/actions/workflows/publish.yml/badge.svg)](https://github.com/happydev-ca/evduty-api/actions/workflows/publish.yml)
 
 # evduty-api
+
 Library to communicate with EVduty REST API.
 
 ## Usage
+
 ```python
 import aiohttp
 import asyncio
@@ -23,15 +25,22 @@ async def run():
             for terminal in station.terminals:
                 print(terminal)
                 print(terminal.session)
+                print(terminal.network_info)
 
 
 asyncio.run(run())
 ```
 
 ### Build and test locally
-    make install
-    make test
-    make build
+
+```shell
+make install
+make test
+make build
+```
 
 ### Release version
-    make release bump=patch|minor|major
+
+```shell
+make release bump=patch|minor|major
+```
