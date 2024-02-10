@@ -4,9 +4,7 @@ from http import HTTPStatus
 import aiohttp
 from unittest import IsolatedAsyncioTestCase
 
-from aiohttp import ClientResponseError
-
-from evdutyapi import EVDutyApi, ChargingSession
+from evdutyapi import EVDutyApi, ChargingSession, EVDutyApiError, EVDutyApiInvalidCredentialsError
 from evdutyapi.api_response.charging_session_response import ChargingSessionResponse
 from evdutyapi.api_response.station_response import StationResponse
 from evdutyapi.api_response.terminal_details_response import TerminalDetailsResponse
@@ -31,6 +29,26 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
                                                  method='POST',
                                                  headers={'Content-Type': 'application/json'},
                                                  json={'device': {'id': '', 'model': '', 'type': 'ANDROID'}, 'email': self.username, 'password': self.password})
+
+    async def test_authenticate_invalid_credentials_error(self):
+        with EVDutyServerForTest() as evduty_server:
+            evduty_server.prepare_login_response(status=HTTPStatus.BAD_REQUEST)
+
+            async with aiohttp.ClientSession() as session:
+                api = EVDutyApi(self.username, self.password, session)
+
+                with self.assertRaises(EVDutyApiInvalidCredentialsError):
+                    await api.async_authenticate()
+
+    async def test_authenticate_other_error(self):
+        with EVDutyServerForTest() as evduty_server:
+            evduty_server.prepare_login_response(status=HTTPStatus.SERVICE_UNAVAILABLE)
+
+            async with aiohttp.ClientSession() as session:
+                api = EVDutyApi(self.username, self.password, session)
+
+                with self.assertRaises(EVDutyApiError):
+                    await api.async_authenticate()
 
     async def test_reuse_token_when_it_is_valid(self):
         with EVDutyServerForTest() as evduty_server:
@@ -72,7 +90,7 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
                 api = EVDutyApi(self.username, self.password, session)
                 try:
                     await api.async_get_stations()
-                except ClientResponseError:
+                except EVDutyApiError:
                     pass
 
                 await api.async_authenticate()
@@ -82,10 +100,6 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
                                                          method='POST',
                                                          headers={'Content-Type': 'application/json'},
                                                          json={'device': {'id': '', 'model': '', 'type': 'ANDROID'}, 'email': self.username, 'password': self.password})
-
-    def test_reauthorize_on_forbidden_and_unauthorized(self):
-        self.assertTrue(EVDutyApi.is_auth_failed(HTTPStatus.FORBIDDEN))
-        self.assertTrue(EVDutyApi.is_auth_failed(HTTPStatus.UNAUTHORIZED))
 
     async def test_async_get_stations(self):
         with EVDutyServerForTest() as evduty_server:
