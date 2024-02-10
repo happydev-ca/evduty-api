@@ -63,7 +63,11 @@ class EVDutyApi:
         try:
             response.raise_for_status()
         except ClientResponseError as error:
-            if error.status == HTTPStatus.FORBIDDEN:
+            if self.is_auth_failed(error.status):
                 self.expires_at = datetime.now() - timedelta(seconds=1)
                 del self.headers['Authorization']
             raise error
+
+    @staticmethod
+    def is_auth_failed(status: HTTPStatus):
+        return status == HTTPStatus.FORBIDDEN or status == HTTPStatus.UNAUTHORIZED

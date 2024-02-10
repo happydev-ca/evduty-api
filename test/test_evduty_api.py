@@ -66,7 +66,7 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
     async def test_reauthorize_when_token_is_invalid(self):
         with EVDutyServerForTest() as evduty_server:
             evduty_server.prepare_login_response({'accessToken': 'hello', 'expiresIn': 1000})
-            evduty_server.prepare_stations_response(status=HTTPStatus.FORBIDDEN, repeat=False)
+            evduty_server.prepare_stations_response(status=HTTPStatus.UNAUTHORIZED, repeat=False)
 
             async with aiohttp.ClientSession() as session:
                 api = EVDutyApi(self.username, self.password, session)
@@ -82,6 +82,10 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
                                                          method='POST',
                                                          headers={'Content-Type': 'application/json'},
                                                          json={'device': {'id': '', 'model': '', 'type': 'ANDROID'}, 'email': self.username, 'password': self.password})
+
+    def test_reauthorize_on_forbidden_and_unauthorized(self):
+        self.assertTrue(EVDutyApi.is_auth_failed(HTTPStatus.FORBIDDEN))
+        self.assertTrue(EVDutyApi.is_auth_failed(HTTPStatus.UNAUTHORIZED))
 
     async def test_async_get_stations(self):
         with EVDutyServerForTest() as evduty_server:
