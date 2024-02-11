@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import TypeAlias
+from typing import TypeAlias, Self
 
 Volt: TypeAlias = float
 Amp: TypeAlias = float
@@ -20,7 +20,7 @@ class ChargingSession:
         self.duration = duration
         self.cost = cost
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (f"<ChargingSession is_active:{self.is_active} "
                 f"is_charging={self.is_charging} "
                 f"volt={self.volt}V amp={self.amp}A "
@@ -42,7 +42,7 @@ class ChargingSession:
                 self.cost == __value.cost)
 
     @classmethod
-    def no_session(cls):
+    def no_session(cls) -> Self:
         return cls(is_active=False,
                    is_charging=False,
                    volt=0,

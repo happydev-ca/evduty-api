@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
+from typing import Any, Dict
 from zoneinfo import ZoneInfo
-
 from evdutyapi import ChargingSession
 
 
@@ -17,7 +17,7 @@ class ChargingSessionResponse:
         self.cost_local = cost_local
 
     @classmethod
-    def from_json(cls, data):
+    def from_json(cls, data: Dict[str, Any]) -> ChargingSession:
         return ChargingSession(is_active=data['isActive'],
                                is_charging=data['isCharging'],
                                volt=data['volt'],

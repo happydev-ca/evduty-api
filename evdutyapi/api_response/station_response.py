@@ -1,3 +1,4 @@
+from typing import Dict, Any
 from evdutyapi import Station, ChargingStatus
 from evdutyapi.api_response.terminal_response import TerminalResponse
 
@@ -12,7 +13,7 @@ class StationResponse:
         self.terminals = terminals
 
     @classmethod
-    def from_json(cls, data):
+    def from_json(cls, data: Dict[str, Any]) -> Station:
         return Station(id=data['id'],
                        name=data['name'],
                        status=ChargingStatus(data['status']),

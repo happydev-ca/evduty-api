@@ -1,3 +1,4 @@
+from typing import Any, Dict
 from evdutyapi import NetworkInfo
 
 
@@ -9,7 +10,7 @@ class TerminalDetailsResponse:
         self.ip_address = ip_address
 
     @classmethod
-    def from_json(cls, data):
+    def from_json(cls, data: Dict[str, Any]) -> NetworkInfo:
         return NetworkInfo(wifi_ssid=data['wifiSSID'],
                            wifi_rssi=data['wifiRSSI'],
                            mac_address=data['macAddress'],

@@ -8,7 +8,7 @@ class Station:
         self.status = status
         self.terminals = terminals
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<Station id:{self.id} name:{self.name} status:{self.status} terminals:{len(self.terminals)}>"
 
     def __eq__(self, __value):

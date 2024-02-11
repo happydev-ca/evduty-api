@@ -11,7 +11,7 @@ class Terminal:
         self.session = session
         self.network_info = network_info
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<Terminal id:{self.id} name:{self.name} status:{self.status} charge_box_identity:{self.charge_box_identity} firmware_version={self.firmware_version}>"
 
     def __eq__(self, __value):

@@ -3,7 +3,7 @@ from http import HTTPStatus
 from typing import List
 
 import aiohttp
-from aiohttp import ClientResponseError
+from aiohttp import ClientResponseError, ClientResponse
 
 from evdutyapi import Station
 from evdutyapi.api_response.charging_session_response import ChargingSessionResponse
@@ -41,7 +41,7 @@ class EVDutyApi:
             self.expires_at = datetime.now() + timedelta(seconds=body['expiresIn'])
 
     @staticmethod
-    def _raise_on_authenticate_error(response):
+    def _raise_on_authenticate_error(response: ClientResponse):
         if response.status == HTTPStatus.BAD_REQUEST:
             raise EVDutyApiInvalidCredentialsError(response.request_info, response.history, status=response.status, message=response.reason, headers=response.headers)
         if not response.ok:
@@ -57,7 +57,7 @@ class EVDutyApi:
             await self._async_get_sessions(stations)
             return stations
 
-    async def _async_get_terminals(self, stations) -> None:
+    async def _async_get_terminals(self, stations: List[Station]) -> None:
         for station in stations:
             for terminal in station.terminals:
                 async with self.session.get(f'{self.base_url}/v1/account/stations/{station.id}/terminals/{terminal.id}', headers=self.headers) as response:
@@ -65,7 +65,7 @@ class EVDutyApi:
                     json_terminal_details = await response.json()
                     terminal.network_info = TerminalDetailsResponse.from_json(json_terminal_details)
 
-    async def _async_get_sessions(self, stations) -> None:
+    async def _async_get_sessions(self, stations: List[Station]) -> None:
         for station in stations:
             for terminal in station.terminals:
                 async with self.session.get(f'{self.base_url}/v1/account/stations/{station.id}/terminals/{terminal.id}/session', headers=self.headers) as response:
@@ -74,7 +74,7 @@ class EVDutyApi:
                         json_session = await response.json()
                         terminal.session = ChargingSessionResponse.from_json(json_session)
 
-    async def _raise_on_get_error(self, response):
+    async def _raise_on_get_error(self, response: ClientResponse):
         if response.status == HTTPStatus.UNAUTHORIZED:
             self.expires_at = datetime.now() - timedelta(seconds=1)
             del self.headers['Authorization']
