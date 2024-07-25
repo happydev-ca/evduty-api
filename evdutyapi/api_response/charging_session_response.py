@@ -26,7 +26,7 @@ class ChargingSessionResponse:
                                energy_consumed=data['energyConsumed'],
                                start_date=datetime.fromtimestamp(data['chargeStartDate'], ZoneInfo('US/Eastern')),
                                duration=timedelta(seconds=data['duration']),
-                               cost=round(data['station']['terminal']['costLocal'] * data['energyConsumed'] / 1000, 2))
+                               cost=round((data['station']['terminal']['costLocal'] or 0) * data['energyConsumed'] / 1000, 2))
 
     def to_json(self):
         return {

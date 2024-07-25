@@ -29,3 +29,19 @@ class ChargingSessionResponseTest(unittest.TestCase):
         self.assertEqual(session.start_date, datetime(2024, 2, 2, 13, 6, 31, tzinfo=ZoneInfo('US/Eastern')))
         self.assertEqual(session.duration, timedelta(seconds=77602.7))
         self.assertEqual(session.cost, 3.66)
+
+    def test_supports_no_cost_estimation(self):
+        json = (ChargingSessionResponse(is_active=True,
+                                        is_charging=False,
+                                        volt=240,
+                                        amp=13.9,
+                                        power=3336,
+                                        energy_consumed=36459.92,
+                                        charge_start_date=1706897191,
+                                        duration=77602.7,
+                                        cost_local=None)
+                .to_json())
+
+        session = ChargingSessionResponse.from_json(json)
+
+        self.assertEqual(session.cost, 0)
