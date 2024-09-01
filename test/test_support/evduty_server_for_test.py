@@ -30,6 +30,9 @@ class EVDutyServerForTest:
     def prepare_terminal_details_response(self, body):
         self.server.get(f'{self.base_url}/v1/account/stations/station_id/terminals/terminal_id', status=HTTPStatus.OK, payload=body, repeat=True)
 
+    def prepare_put_terminal_details(self):
+        self.server.put(f'{self.base_url}/v1/account/stations/station_id/terminals/terminal_id')
+
     def prepare_session_response(self, body):
         self.server.get(f'{self.base_url}/v1/account/stations/station_id/terminals/terminal_id/session', status=HTTPStatus.OK, payload=body, repeat=True)
 

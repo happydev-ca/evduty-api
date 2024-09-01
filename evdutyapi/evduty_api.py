@@ -5,10 +5,11 @@ from typing import List
 import aiohttp
 from aiohttp import ClientResponseError, ClientResponse
 
-from evdutyapi import Station
+from evdutyapi import Station, Terminal
 from evdutyapi.api_response.charging_session_response import ChargingSessionResponse
 from evdutyapi.api_response.station_response import StationResponse
 from evdutyapi.api_response.terminal_details_response import TerminalDetailsResponse
+from evdutyapi.charging_profile import Amp
 
 
 class EVDutyApiError(ClientResponseError):
@@ -63,7 +64,8 @@ class EVDutyApi:
                 async with self.session.get(f'{self.base_url}/v1/account/stations/{station.id}/terminals/{terminal.id}', headers=self.headers) as response:
                     await self._raise_on_get_error(response)
                     json_terminal_details = await response.json()
-                    terminal.network_info = TerminalDetailsResponse.from_json(json_terminal_details)
+                    terminal.network_info = TerminalDetailsResponse.from_json_to_network_info(json_terminal_details)
+                    terminal.charging_profile = TerminalDetailsResponse.from_json_to_charging_profile(json_terminal_details)
 
     async def _async_get_sessions(self, stations: List[Station]) -> None:
         for station in stations:
@@ -73,6 +75,14 @@ class EVDutyApi:
                     if await response.text() != '':
                         json_session = await response.json()
                         terminal.session = ChargingSessionResponse.from_json(json_session)
+
+    async def async_set_terminal_max_charging_current(self, terminal: Terminal, current: Amp) -> None:
+        async with self.session.get(f'{self.base_url}/v1/account/stations/{terminal.station_id}/terminals/{terminal.id}', headers=self.headers) as response:
+            await self._raise_on_get_error(response)
+            json_request = await response.json()
+            TerminalDetailsResponse.to_max_charging_current_request(json_request, current)
+            async with self.session.put(f'{self.base_url}/v1/account/stations/{terminal.station_id}/terminals/{terminal.id}', headers=self.headers, json=json_request) as put_response:
+                await self._raise_on_get_error(put_response)
 
     async def _raise_on_get_error(self, response: ClientResponse):
         if response.status == HTTPStatus.UNAUTHORIZED:

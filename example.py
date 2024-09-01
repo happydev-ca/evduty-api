@@ -15,6 +15,7 @@ async def run():
                 print(terminal)
                 print(terminal.session)
                 print(terminal.network_info)
+                print(terminal.charging_profile)
 
 
 asyncio.run(run())

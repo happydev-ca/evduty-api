@@ -4,12 +4,39 @@ from evdutyapi.api_response.terminal_details_response import TerminalDetailsResp
 
 
 class TerminalDetailsResponseTest(unittest.TestCase):
-    def test_parses_json(self):
-        json = TerminalDetailsResponse(wifi_ssid='wifi', wifi_rssi=-72, mac_address='mac', ip_address='ip').to_json()
+    def test_parses_json_to_network_info(self):
+        json = TerminalDetailsResponse(wifi_ssid='wifi', wifi_rssi=-72, mac_address='mac', ip_address='ip', power_limitation=False, current_limit=30, amperage=30).to_json()
 
-        network_info = TerminalDetailsResponse.from_json(json)
+        network_info = TerminalDetailsResponse.from_json_to_network_info(json)
 
         self.assertEqual(network_info.wifi_ssid, 'wifi')
         self.assertEqual(network_info.wifi_rssi, -72)
         self.assertEqual(network_info.mac_address, 'mac')
         self.assertEqual(network_info.ip_address, 'ip')
+
+    def test_parses_json_to_charging_profile_enabled(self):
+        json = TerminalDetailsResponse(wifi_ssid='wifi', wifi_rssi=-72, mac_address='mac', ip_address='ip', power_limitation=True, current_limit=20, amperage=30).to_json()
+
+        charging_profile = TerminalDetailsResponse.from_json_to_charging_profile(json)
+
+        self.assertEqual(charging_profile.power_limitation, True)
+        self.assertEqual(charging_profile.current_limit, 20)
+
+    def test_parses_json_to_charging_profile_disabled(self):
+        json = TerminalDetailsResponse(wifi_ssid='wifi', wifi_rssi=-72, mac_address='mac', ip_address='ip', power_limitation=False, current_limit=0, amperage=30).to_json()
+
+        charging_profile = TerminalDetailsResponse.from_json_to_charging_profile(json)
+
+        self.assertEqual(charging_profile.power_limitation, False)
+        self.assertEqual(charging_profile.current_limit, 30)
+
+    def test_create_request_from_response(self):
+        json = TerminalDetailsResponse(wifi_ssid='wifi', wifi_rssi=-72, mac_address='mac', ip_address='ip', power_limitation=False, current_limit=0, amperage=30).to_json()
+
+        request = TerminalDetailsResponse.to_max_charging_current_request(json, 10)
+
+        self.assertEqual('cost' in request, False)
+        self.assertEqual('alternateCost' in request, False)
+        self.assertEqual('sessionTimeLimits' in request, False)
+        self.assertEqual(request['chargingProfile']['chargingRate'], 10)
+        self.assertEqual(request['chargingProfile']['chargingRateUnit'], 'A')

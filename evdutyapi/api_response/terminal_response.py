@@ -11,8 +11,9 @@ class TerminalResponse:
         self.firmware_version = firmware_version
 
     @classmethod
-    def from_json(cls, data: Dict[str, Any]) -> Terminal:
+    def from_json(cls, data: Dict[str, Any], station_id: str) -> Terminal:
         return Terminal(id=data['id'],
+                        station_id=station_id,
                         name=data['name'],
                         status=ChargingStatus(data['status']),
                         charge_box_identity=data['chargeBoxIdentity'],
