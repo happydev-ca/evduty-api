@@ -21,6 +21,7 @@ class TerminalDetailsResponseTest(unittest.TestCase):
 
         self.assertEqual(charging_profile.power_limitation, True)
         self.assertEqual(charging_profile.current_limit, 20)
+        self.assertEqual(charging_profile.current_max, 30)
 
     def test_parses_json_to_charging_profile_disabled(self):
         json = TerminalDetailsResponse(wifi_ssid='wifi', wifi_rssi=-72, mac_address='mac', ip_address='ip', power_limitation=False, current_limit=0, amperage=30).to_json()
@@ -29,6 +30,7 @@ class TerminalDetailsResponseTest(unittest.TestCase):
 
         self.assertEqual(charging_profile.power_limitation, False)
         self.assertEqual(charging_profile.current_limit, 30)
+        self.assertEqual(charging_profile.current_max, 30)
 
     def test_create_request_from_response(self):
         json = TerminalDetailsResponse(wifi_ssid='wifi', wifi_rssi=-72, mac_address='mac', ip_address='ip', power_limitation=False, current_limit=0, amperage=30).to_json()

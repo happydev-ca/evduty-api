@@ -22,9 +22,10 @@ class TerminalDetailsResponse:
 
     @classmethod
     def from_json_to_charging_profile(cls, data: Dict[str, Any]) -> ChargingProfile:
+        current_max = data['amperage']
         power_limitation = 'chargingProfile' in data
-        current_limit = data['chargingProfile']['chargingRate'] if power_limitation else data['amperage']
-        return ChargingProfile(power_limitation=power_limitation, current_limit=current_limit)
+        current_limit = data['chargingProfile']['chargingRate'] if power_limitation else current_max
+        return ChargingProfile(power_limitation=power_limitation, current_limit=current_limit, current_max=current_max)
 
     @classmethod
     def to_max_charging_current_request(cls, data: Dict[str, Any], current) -> Dict[str, Any]:
