@@ -155,8 +155,9 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
                 evduty_server.assert_called_with(url='/v1/account/stations/station_id/terminals/terminal_id',
                                                  method='PUT',
                                                  data=None,
-                                                 headers={'Content-Type': 'application/json'},
-                                                 json={'amperage': 30, 'wifiSSID': 'wifi', 'wifiRSSI': -66, 'macAddress': '11:22:33:44:AA:BB', 'localIPAddress': '192.168.1.5', 'chargingProfile': {'chargingRate': 15, 'chargingRateUnit': 'A'}})
+                                                 headers={'Content-Type': 'application/json', 'Authorization': 'Bearer token'},
+                                                 json={'amperage': 30, 'wifiSSID': 'wifi', 'wifiRSSI': -66, 'macAddress': '11:22:33:44:AA:BB', 'localIPAddress': '192.168.1.5',
+                                                       'chargingProfile': {'chargingRate': 15, 'chargingRateUnit': 'A'}})
 
     @staticmethod
     def any_stations_response():

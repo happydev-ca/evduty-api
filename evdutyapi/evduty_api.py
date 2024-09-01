@@ -77,6 +77,7 @@ class EVDutyApi:
                         terminal.session = ChargingSessionResponse.from_json(json_session)
 
     async def async_set_terminal_max_charging_current(self, terminal: Terminal, current: Amp) -> None:
+        await self.async_authenticate()
         async with self.session.get(f'{self.base_url}/v1/account/stations/{terminal.station_id}/terminals/{terminal.id}', headers=self.headers) as response:
             await self._raise_on_get_error(response)
             json_request = await response.json()
