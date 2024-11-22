@@ -32,6 +32,8 @@ class TerminalDetailsResponse:
         data.pop('cost', None)
         data.pop('alternateCost', None)
         data.pop('sessionTimeLimits', None)
+        if data.get('costLocal') is None:
+            data.pop('costLocal', None)
         data['chargingProfile'] = {'chargingRate': current, 'chargingRateUnit': 'A'}
         return data
 

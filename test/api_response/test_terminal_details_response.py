@@ -32,13 +32,26 @@ class TerminalDetailsResponseTest(unittest.TestCase):
         self.assertEqual(charging_profile.current_limit, 30)
         self.assertEqual(charging_profile.current_max, 30)
 
-    def test_create_request_from_response(self):
+    def test_create_request_from_response_removing_unmodifiable_fields(self):
         json = TerminalDetailsResponse(wifi_ssid='wifi', wifi_rssi=-72, mac_address='mac', ip_address='ip', power_limitation=False, current_limit=0, amperage=30).to_json()
+        json['cost'] = 'any'
+        json['alternateCost'] = 'any'
+        json['sessionTimeLimits'] = 'any'
+        json['costLocal'] = None
 
         request = TerminalDetailsResponse.to_max_charging_current_request(json, 10)
 
         self.assertEqual('cost' in request, False)
         self.assertEqual('alternateCost' in request, False)
         self.assertEqual('sessionTimeLimits' in request, False)
+        self.assertEqual('costLocal' in request, False)
         self.assertEqual(request['chargingProfile']['chargingRate'], 10)
         self.assertEqual(request['chargingProfile']['chargingRateUnit'], 'A')
+
+    def test_create_request_from_response_keeping_cost_local_when_set(self):
+        json = TerminalDetailsResponse(wifi_ssid='wifi', wifi_rssi=-72, mac_address='mac', ip_address='ip', power_limitation=False, current_limit=0, amperage=30).to_json()
+        json['costLocal'] = 0.1034
+
+        request = TerminalDetailsResponse.to_max_charging_current_request(json, 10)
+
+        self.assertEqual(request['costLocal'], 0.1034)
