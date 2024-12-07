@@ -162,7 +162,7 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
     @staticmethod
     def any_stations_response():
         return [
-            StationResponse(id='station_id', name='station_name', status='available', terminals=[
+            StationResponse(id='station_id', name='station_name', terminals=[
                 TerminalResponse(id='terminal_id', name='terminal_name', status='inUse', charge_box_identity='identity', firmware_version='version').to_json()
             ]).to_json(),
         ]
