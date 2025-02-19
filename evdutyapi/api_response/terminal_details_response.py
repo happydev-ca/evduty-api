@@ -1,17 +1,18 @@
+from dataclasses import dataclass
 from typing import Any, Dict
 from evdutyapi import NetworkInfo
 from evdutyapi.charging_profile import ChargingProfile
 
 
+@dataclass(frozen=True)
 class TerminalDetailsResponse:
-    def __init__(self, wifi_ssid, wifi_rssi, mac_address, ip_address, power_limitation, current_limit, amperage):
-        self.wifi_ssid = wifi_ssid
-        self.wifi_rssi = wifi_rssi
-        self.mac_address = mac_address
-        self.ip_address = ip_address
-        self.power_limitation = power_limitation
-        self.current_limit = current_limit
-        self.amperage = amperage
+    wifi_ssid: str
+    wifi_rssi: int
+    mac_address: str
+    ip_address: str
+    power_limitation: bool
+    current_limit: int
+    amperage: int
 
     @classmethod
     def from_json_to_network_info(cls, data: Dict[str, Any]) -> NetworkInfo:

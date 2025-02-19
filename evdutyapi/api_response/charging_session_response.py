@@ -1,20 +1,21 @@
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any, Dict
 from zoneinfo import ZoneInfo
 from evdutyapi import ChargingSession
 
 
+@dataclass(frozen=True)
 class ChargingSessionResponse:
-    def __init__(self, is_active, is_charging, volt, amp, power, energy_consumed, charge_start_date, duration, cost_local):
-        self.is_active = is_active
-        self.is_charging = is_charging
-        self.volt = volt
-        self.amp = amp
-        self.power = power
-        self.energy_consumed = energy_consumed
-        self.charge_start_date = charge_start_date
-        self.duration = duration
-        self.cost_local = cost_local
+    is_active: bool
+    is_charging: bool
+    volt: float
+    amp: float
+    power: float
+    energy_consumed: float
+    charge_start_date: int  # Unix timestamp
+    duration: float  # seconds
+    cost_local: float | None
 
     @classmethod
     def from_json(cls, data: Dict[str, Any]) -> ChargingSession:

@@ -6,7 +6,11 @@ from evdutyapi.api_response.terminal_response import TerminalResponse
 
 class TerminalResponseTest(unittest.TestCase):
     def test_parses_json(self):
-        json = TerminalResponse(id="1", name="A", status="inUse", charge_box_identity="model", firmware_version="1.1.1").to_json()
+        json = TerminalResponse(id="1",
+                                name="A",
+                                status="inUse",
+                                charge_box_identity="model",
+                                firmware_version="1.1.1").to_json()
 
         terminal = TerminalResponse.from_json(json, "2")
 

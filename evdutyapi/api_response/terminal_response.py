@@ -1,14 +1,15 @@
+from dataclasses import dataclass
 from typing import Any, Dict
 from evdutyapi import Terminal, ChargingSession, ChargingStatus
 
 
+@dataclass(frozen=True)
 class TerminalResponse:
-    def __init__(self, id, name, status, charge_box_identity, firmware_version):
-        self.id = id
-        self.name = name
-        self.status = status
-        self.charge_box_identity = charge_box_identity
-        self.firmware_version = firmware_version
+    id: str
+    name: str
+    status: str
+    charge_box_identity: str
+    firmware_version: str
 
     @classmethod
     def from_json(cls, data: Dict[str, Any], station_id: str) -> Terminal:
