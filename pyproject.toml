@@ -1,6 +1,6 @@
 [project]
 name = "evduty-api"
-version = "0.4.2"
+version = "1.0.0"
 description = "Library to communicate with EVduty REST api"
 authors = [{ name = "Francois Perron", email = "fperron@gmail.com" }]
 readme = "README.md"
