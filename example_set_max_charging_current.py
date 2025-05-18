@@ -25,8 +25,7 @@ async def run():
 
 async def get_first_terminal(api):
     stations = await api.async_get_stations()
-    station = stations[0]
-    terminal = station.terminals[0]
+    terminal = stations[0].terminals[0]
     return terminal
 
 
