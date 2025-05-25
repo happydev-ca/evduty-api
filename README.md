@@ -27,7 +27,8 @@ asyncio.run(run())
 ### Build and test locally
 
 ```shell
-make install
+make venv
+source .venv/bin/activate
 make test
 make build
 ```
