@@ -31,7 +31,7 @@ class EVDutyApi:
 
         json = {'device': {'id': '', 'model': '', 'type': 'ANDROID'}, 'email': self.username, 'password': self.password}
         async with self.session.post(f'{self.base_url}/v1/account/login', json=json, headers=self.headers) as response:
-            await self._log("async_authenticate", response)
+            await self._log('/v1/account/login', response, self.headers, json=json)
             self._raise_on_authenticate_error(response)
             body = await response.json()
             self.headers['Authorization'] = 'Bearer ' + body['accessToken']
@@ -45,12 +45,9 @@ class EVDutyApi:
             raise EVDutyApiError(response)
 
     async def async_get_stations(self) -> List[Station]:
-        await self.async_authenticate()
-        async with self.session.get(f'{self.base_url}/v1/account/stations', headers=self.headers) as response:
-            await self._log("async_get_stations", response)
-            await self._raise_on_get_error(response)
-            json_stations = await response.json()
-            stations = [StationResponse.from_json(s) for s in json_stations]
+        async with await self._get('/v1/account/stations') as response:
+            body = await response.json()
+            stations = [StationResponse.from_json(station) for station in body]
             await self._async_get_terminals(stations)
             await self._async_get_sessions(stations)
             return stations
@@ -58,39 +55,37 @@ class EVDutyApi:
     async def _async_get_terminals(self, stations: List[Station]) -> None:
         for station in stations:
             for terminal in station.terminals:
-                async with self.session.get(f'{self.base_url}/v1/account/stations/{station.id}/terminals/{terminal.id}',
-                                            headers=self.headers) as response:
-                    await self._log("_async_get_terminals", response)
-                    await self._raise_on_get_error(response)
-                    json_terminal_details = await response.json()
-                    terminal.network_info = TerminalResponse.from_json_to_network_info(json_terminal_details)
-                    terminal.charging_profile = TerminalResponse.from_json_to_charging_profile(json_terminal_details)
+                async with await self._get(f'/v1/account/stations/{station.id}/terminals/{terminal.id}') as response:
+                    body = await response.json()
+                    terminal.network_info = TerminalResponse.from_json_to_network_info(body)
+                    terminal.charging_profile = TerminalResponse.from_json_to_charging_profile(body)
 
     async def _async_get_sessions(self, stations: List[Station]) -> None:
         for station in stations:
             for terminal in station.terminals:
-                async with self.session.get(f'{self.base_url}/v1/account/stations/{station.id}/terminals/{terminal.id}/session',
-                                            headers=self.headers) as response:
-                    await self._log("_async_get_sessions", response)
-                    await self._raise_on_get_error(response)
+                async with await self._get(f'/v1/account/stations/{station.id}/terminals/{terminal.id}/session') as response:
                     if await response.text() != '':
-                        json_session = await response.json()
-                        terminal.session = ChargingSessionResponse.from_json(json_session)
+                        body = await response.json()
+                        terminal.session = ChargingSessionResponse.from_json(body)
 
     async def async_set_terminal_max_charging_current(self, terminal: Terminal, current: int) -> None:
-        await self.async_authenticate()
-        async with self.session.get(f'{self.base_url}/v1/account/stations/{terminal.station_id}/terminals/{terminal.id}',
-                                    headers=self.headers) as response:
-            await self._log("async_set_terminal_max_charging_current GET", response)
-            await self._raise_on_get_error(response)
-            terminal_response = await response.json()
-            request = MaxChargingCurrentRequest.from_terminal_response(terminal_response, current)
+        async with await self._get(f'/v1/account/stations/{terminal.station_id}/terminals/{terminal.id}') as response:
+            body = await response.json()
+            request = MaxChargingCurrentRequest.from_terminal_response(body, current)
             async with self.session.put(f'{self.base_url}/v1/account/stations/{terminal.station_id}/terminals/{terminal.id}',
                                         headers=self.headers, json=request) as put_response:
-                await self._log("async_set_terminal_max_charging_current PUT", response)
-                await self._raise_on_get_error(put_response)
+                await self._log(f'/v1/account/stations/{terminal.station_id}/terminals/{terminal.id}', put_response, self.headers,
+                                json=request)
+                self._raise_on_error(put_response)
 
-    async def _raise_on_get_error(self, response: ClientResponse):
+    async def _get(self, url: str) -> ClientResponse:
+        await self.async_authenticate()
+        response = await self.session.get(f'{self.base_url}{url}', headers=self.headers)
+        await self._log(url, response, self.headers)
+        self._raise_on_error(response)
+        return response
+
+    def _raise_on_error(self, response: ClientResponse):
         if response.status == HTTPStatus.UNAUTHORIZED:
             self.expires_at = datetime.now() - timedelta(seconds=1)
             del self.headers['Authorization']
@@ -99,5 +94,6 @@ class EVDutyApi:
             raise EVDutyApiError(response)
 
     @staticmethod
-    async def _log(endpoint, response):
-        LOGGER.debug(f"{endpoint} : status[{response.status}] - headers [{dict(response.headers)}] - body[{await response.text()}]")
+    async def _log(url: str, response: ClientResponse, headers: dict, json: dict = None) -> None:
+        LOGGER.debug(
+            f"{url} : Request[[ headers=[{headers}] body=[{json}] ]] - Response[[ status=[{response.status}] headers=[{dict(response.headers)}] body=[{await response.text()}] ]]")

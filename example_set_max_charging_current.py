@@ -7,7 +7,6 @@ from evdutyapi import EVDutyApi
 email = os.environ['EMAIL']
 password = os.environ['PASSWORD']
 current = int(os.environ['CURRENT'])
-print('will set max current to', current)
 
 
 async def run():
@@ -15,12 +14,13 @@ async def run():
         api = EVDutyApi(email, password, session)
 
         terminal = await get_first_terminal(api)
-        print(terminal.charging_profile)
+        print(f'Before change {terminal.charging_profile}')
 
+        print('Changing max current to', current)
         await api.async_set_terminal_max_charging_current(terminal, current=current)
 
         terminal = await get_first_terminal(api)
-        print(terminal.charging_profile)
+        print(f'After change {terminal.charging_profile}')
 
 
 async def get_first_terminal(api):
