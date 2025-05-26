@@ -4,23 +4,15 @@ from logging import Logger, getLogger
 from typing import List
 
 import aiohttp
-from aiohttp import ClientResponseError, ClientResponse
+from aiohttp import ClientResponse
 
-from evdutyapi import Station, Terminal
-from evdutyapi.api_response.charging_session_response import ChargingSessionResponse
-from evdutyapi.api_response.station_response import StationResponse
-from evdutyapi.api_response.terminal_details_response import TerminalDetailsResponse
-from evdutyapi.charging_profile import Amp
+from . import EVDutyApiError, EVDutyApiInvalidCredentialsError, Station, Terminal
+from .charging_sessions.charging_session_response import ChargingSessionResponse
+from .max_charging_current.max_charging_current_request import MaxChargingCurrentRequest
+from .stations.station_response import StationResponse
+from .terminals.terminal_response import TerminalResponse
 
 LOGGER: Logger = getLogger(__package__)
-
-
-class EVDutyApiError(ClientResponseError):
-    pass
-
-
-class EVDutyApiInvalidCredentialsError(EVDutyApiError):
-    pass
 
 
 class EVDutyApi:
@@ -48,9 +40,9 @@ class EVDutyApi:
     @staticmethod
     def _raise_on_authenticate_error(response: ClientResponse):
         if response.status == HTTPStatus.BAD_REQUEST:
-            raise EVDutyApiInvalidCredentialsError(response.request_info, response.history, status=response.status, message=response.reason, headers=response.headers)
+            raise EVDutyApiInvalidCredentialsError(response)
         if not response.ok:
-            raise EVDutyApiError(response.request_info, response.history, status=response.status, message=response.reason, headers=response.headers)
+            raise EVDutyApiError(response)
 
     async def async_get_stations(self) -> List[Station]:
         await self.async_authenticate()
@@ -66,31 +58,35 @@ class EVDutyApi:
     async def _async_get_terminals(self, stations: List[Station]) -> None:
         for station in stations:
             for terminal in station.terminals:
-                async with self.session.get(f'{self.base_url}/v1/account/stations/{station.id}/terminals/{terminal.id}', headers=self.headers) as response:
+                async with self.session.get(f'{self.base_url}/v1/account/stations/{station.id}/terminals/{terminal.id}',
+                                            headers=self.headers) as response:
                     await self._log("_async_get_terminals", response)
                     await self._raise_on_get_error(response)
                     json_terminal_details = await response.json()
-                    terminal.network_info = TerminalDetailsResponse.from_json_to_network_info(json_terminal_details)
-                    terminal.charging_profile = TerminalDetailsResponse.from_json_to_charging_profile(json_terminal_details)
+                    terminal.network_info = TerminalResponse.from_json_to_network_info(json_terminal_details)
+                    terminal.charging_profile = TerminalResponse.from_json_to_charging_profile(json_terminal_details)
 
     async def _async_get_sessions(self, stations: List[Station]) -> None:
         for station in stations:
             for terminal in station.terminals:
-                async with self.session.get(f'{self.base_url}/v1/account/stations/{station.id}/terminals/{terminal.id}/session', headers=self.headers) as response:
+                async with self.session.get(f'{self.base_url}/v1/account/stations/{station.id}/terminals/{terminal.id}/session',
+                                            headers=self.headers) as response:
                     await self._log("_async_get_sessions", response)
                     await self._raise_on_get_error(response)
                     if await response.text() != '':
                         json_session = await response.json()
                         terminal.session = ChargingSessionResponse.from_json(json_session)
 
-    async def async_set_terminal_max_charging_current(self, terminal: Terminal, current: Amp) -> None:
+    async def async_set_terminal_max_charging_current(self, terminal: Terminal, current: int) -> None:
         await self.async_authenticate()
-        async with self.session.get(f'{self.base_url}/v1/account/stations/{terminal.station_id}/terminals/{terminal.id}', headers=self.headers) as response:
+        async with self.session.get(f'{self.base_url}/v1/account/stations/{terminal.station_id}/terminals/{terminal.id}',
+                                    headers=self.headers) as response:
             await self._log("async_set_terminal_max_charging_current GET", response)
             await self._raise_on_get_error(response)
-            json_request = await response.json()
-            TerminalDetailsResponse.to_max_charging_current_request(json_request, current)
-            async with self.session.put(f'{self.base_url}/v1/account/stations/{terminal.station_id}/terminals/{terminal.id}', headers=self.headers, json=json_request) as put_response:
+            terminal_response = await response.json()
+            request = MaxChargingCurrentRequest.from_terminal_response(terminal_response, current)
+            async with self.session.put(f'{self.base_url}/v1/account/stations/{terminal.station_id}/terminals/{terminal.id}',
+                                        headers=self.headers, json=request) as put_response:
                 await self._log("async_set_terminal_max_charging_current PUT", response)
                 await self._raise_on_get_error(put_response)
 
@@ -100,7 +96,7 @@ class EVDutyApi:
             del self.headers['Authorization']
 
         if not response.ok:
-            raise EVDutyApiError(response.request_info, response.history, status=response.status, message=response.reason, headers=response.headers)
+            raise EVDutyApiError(response)
 
     @staticmethod
     async def _log(endpoint, response):

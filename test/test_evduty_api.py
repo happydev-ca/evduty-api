@@ -4,13 +4,15 @@ from http import HTTPStatus
 import aiohttp
 from unittest import IsolatedAsyncioTestCase
 
-from evdutyapi import (EVDutyApi, ChargingSession, ChargingStatus, Terminal,
+from evdutyapi import (ChargingStatus, EVDutyApi, ChargingSession, Terminal,
                        EVDutyApiError, EVDutyApiInvalidCredentialsError)
-from evdutyapi.api_response.charging_session_response import ChargingSessionResponse
-from evdutyapi.api_response.station_response import StationResponse
-from evdutyapi.api_response.terminal_details_response import TerminalDetailsResponse
-from evdutyapi.api_response.terminal_response import TerminalResponse
-from test.test_support.evduty_server_for_test import EVDutyServerForTest
+from evdutyapi.charging_sessions.charging_session_response import ChargingSessionResponse
+from evdutyapi.stations.station_response import StationResponse
+from evdutyapi.terminals.terminal_response import TerminalResponse
+from .evduty_server_for_test import EVDutyServerForTest
+from .stations.station_response_builder import StationResponseBuilder
+from .terminals.terminal_response_builder import TerminalResponseBuilder
+from .charging_sessions.charging_session_response_builder import ChargingSessionResponseBuilder
 
 
 class EVdutyApiTest(IsolatedAsyncioTestCase):
@@ -109,13 +111,13 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
 
     async def test_async_get_stations(self):
         with EVDutyServerForTest() as evduty_server:
-            stations_response = self.any_stations_response()
-            terminal_details_response = self.any_terminal_details_response()
-            session_response = self.any_session_response()
+            stations_response = [StationResponseBuilder.default().build()]
+            terminal_response = TerminalResponseBuilder.default().build()
+            session_response = ChargingSessionResponseBuilder.default().build()
 
             evduty_server.prepare_login_response()
             evduty_server.prepare_stations_response(stations_response)
-            evduty_server.prepare_terminal_details_response(terminal_details_response)
+            evduty_server.prepare_terminal_details_response(terminal_response)
             evduty_server.prepare_session_response(session_response)
 
             async with aiohttp.ClientSession() as session:
@@ -123,19 +125,16 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
                 stations = await api.async_get_stations()
 
                 expected_stations = [StationResponse.from_json(s) for s in stations_response]
-                expected_stations[0].terminals[0].network_info = TerminalDetailsResponse.from_json_to_network_info(
-                    terminal_details_response)
-                expected_stations[0].terminals[
-                    0].charging_profile = TerminalDetailsResponse.from_json_to_charging_profile(
-                    terminal_details_response)
+                expected_stations[0].terminals[0].network_info = TerminalResponse.from_json_to_network_info(terminal_response)
+                expected_stations[0].terminals[0].charging_profile = TerminalResponse.from_json_to_charging_profile(terminal_response)
                 expected_stations[0].terminals[0].session = ChargingSessionResponse.from_json(session_response)
                 self.assertEqual(stations, expected_stations)
 
     async def test_async_no_charging_session(self):
         with EVDutyServerForTest() as evduty_server:
             evduty_server.prepare_login_response()
-            evduty_server.prepare_stations_response(self.any_stations_response())
-            evduty_server.prepare_terminal_details_response(self.any_terminal_details_response())
+            evduty_server.prepare_stations_response([StationResponseBuilder.default().build()])
+            evduty_server.prepare_terminal_details_response(TerminalResponseBuilder.default().build())
             evduty_server.prepare_session_response(None)
 
             async with aiohttp.ClientSession() as session:
@@ -147,7 +146,7 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
     async def test_async_set_terminal_max_charging_current(self):
         with EVDutyServerForTest() as evduty_server:
             evduty_server.prepare_login_response()
-            evduty_server.prepare_terminal_details_response(self.any_terminal_details_response())
+            evduty_server.prepare_terminal_details_response(TerminalResponseBuilder.default().build())
             evduty_server.prepare_put_terminal_details()
 
             async with aiohttp.ClientSession() as session:
@@ -167,32 +166,5 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
                     data=None,
                     headers={'Content-Type': 'application/json', 'Authorization': 'Bearer token'},
                     json={'amperage': 30, 'wifiSSID': 'wifi', 'wifiRSSI': -66, 'macAddress': '11:22:33:44:AA:BB',
-                          'localIPAddress': '192.168.1.5',
+                          'localIPAddress': '192.168.1.5', 'costLocal': 0.1234,
                           'chargingProfile': {'chargingRate': 15, 'chargingRateUnit': 'A'}})
-
-    @staticmethod
-    def any_stations_response():
-        return [
-            StationResponse(id='station_id', name='station_name', terminals=[
-                TerminalResponse(id='terminal_id', name='terminal_name', status='inUse', charge_box_identity='identity',
-                                 firmware_version='version').to_json()
-            ]).to_json(),
-        ]
-
-    @staticmethod
-    def any_terminal_details_response():
-        return TerminalDetailsResponse(wifi_ssid="wifi", wifi_rssi=-66, mac_address='11:22:33:44:AA:BB',
-                                       ip_address='192.168.1.5', power_limitation=True, current_limit=15,
-                                       amperage=30).to_json()
-
-    @staticmethod
-    def any_session_response():
-        return ChargingSessionResponse(is_active=True,
-                                       is_charging=True,
-                                       volt=240,
-                                       amp=13.9,
-                                       power=3336,
-                                       energy_consumed=36459.92,
-                                       charge_start_date=1706897191,
-                                       duration=77602.7,
-                                       cost_local=0.10039).to_json()
