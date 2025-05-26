@@ -7,6 +7,7 @@ from unittest import IsolatedAsyncioTestCase
 from evdutyapi import (ChargingStatus, EVDutyApi, ChargingSession, Terminal,
                        EVDutyApiError, EVDutyApiInvalidCredentialsError)
 from evdutyapi.charging_sessions.charging_session_response import ChargingSessionResponse
+from evdutyapi.max_charging_current.max_charging_current_request import MaxChargingCurrentRequest
 from evdutyapi.stations.station_response import StationResponse
 from evdutyapi.terminals.terminal_response import TerminalResponse
 from .evduty_server_for_test import EVDutyServerForTest
@@ -146,7 +147,8 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
     async def test_async_set_terminal_max_charging_current(self):
         with EVDutyServerForTest() as evduty_server:
             evduty_server.prepare_login_response()
-            evduty_server.prepare_terminal_details_response(TerminalResponseBuilder.default().build())
+            terminal_response = TerminalResponseBuilder.default().build()
+            evduty_server.prepare_terminal_details_response(terminal_response)
             evduty_server.prepare_put_terminal_details()
 
             async with aiohttp.ClientSession() as session:
@@ -165,6 +167,4 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
                     method='PUT',
                     data=None,
                     headers={'Content-Type': 'application/json', 'Authorization': 'Bearer token'},
-                    json={'amperage': 30, 'wifiSSID': 'wifi', 'wifiRSSI': -66, 'macAddress': '11:22:33:44:AA:BB',
-                          'localIPAddress': '192.168.1.5', 'costLocal': 0.1234,
-                          'chargingProfile': {'chargingRate': 15, 'chargingRateUnit': 'A'}})
+                    json=MaxChargingCurrentRequest.from_terminal_response(terminal_response, 15))

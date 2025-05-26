@@ -1,12 +1,8 @@
-from dataclasses import dataclass
-from typing import Dict, Any, List
+from typing import Dict, Any
 from .. import ChargingSession, ChargingStatus, Station, Terminal
 
-@dataclass(frozen=True)
+
 class StationResponse:
-    id: str
-    name: str
-    terminals: List[Dict[str, Any]]
 
     @classmethod
     def from_json(cls, data: Dict[str, Any]) -> Station:

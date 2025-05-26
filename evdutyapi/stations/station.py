@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from evdutyapi import Terminal
+from .. import Terminal
 
 
 @dataclass(frozen=True)

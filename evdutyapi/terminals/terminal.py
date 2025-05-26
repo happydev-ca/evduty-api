@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import TypeAlias
 
-from evdutyapi import ChargingSession
+from .. import ChargingSession
 
 Amp: TypeAlias = int
 
