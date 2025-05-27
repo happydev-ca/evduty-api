@@ -1,3 +1,4 @@
+import asyncio
 from datetime import timedelta, datetime
 from http import HTTPStatus
 from logging import Logger, getLogger
@@ -47,25 +48,28 @@ class EVDutyApi:
         async with await self._get('/v1/account/stations') as response:
             body = await response.json()
             stations = [StationResponse.from_json(station) for station in body]
-            await self._async_get_terminals(stations)
-            await self._async_get_sessions(stations)
+            await asyncio.gather(self._async_get_terminals(stations))
             return stations
 
     async def _async_get_terminals(self, stations: List[Station]) -> None:
+        calls = []
         for station in stations:
             for terminal in station.terminals:
-                async with await self._get(f'/v1/account/stations/{station.id}/terminals/{terminal.id}') as response:
-                    body = await response.json()
-                    terminal.network_info = TerminalResponse.from_json_to_network_info(body)
-                    terminal.charging_profile = TerminalResponse.from_json_to_charging_profile(body)
+                calls.append(self._async_get_terminal_details(terminal))
+                calls.append(self._async_get_session(terminal))
+        await asyncio.gather(*calls)
 
-    async def _async_get_sessions(self, stations: List[Station]) -> None:
-        for station in stations:
-            for terminal in station.terminals:
-                async with await self._get(f'/v1/account/stations/{station.id}/terminals/{terminal.id}/session') as response:
-                    if await response.text() != '':
-                        body = await response.json()
-                        terminal.session = ChargingSessionResponse.from_json(body)
+    async def _async_get_terminal_details(self, terminal: Terminal) -> None:
+        async with await self._get(f'/v1/account/stations/{terminal.station_id}/terminals/{terminal.id}') as response:
+            body = await response.json()
+            terminal.network_info = TerminalResponse.from_json_to_network_info(body)
+            terminal.charging_profile = TerminalResponse.from_json_to_charging_profile(body)
+
+    async def _async_get_session(self, terminal: Terminal) -> None:
+        async with await self._get(f'/v1/account/stations/{terminal.station_id}/terminals/{terminal.id}/session') as response:
+            if await response.text() != '':
+                body = await response.json()
+                terminal.session = ChargingSessionResponse.from_json(body)
 
     async def async_set_terminal_max_charging_current(self, terminal: Terminal, current: int) -> None:
         async with await self._get(f'/v1/account/stations/{terminal.station_id}/terminals/{terminal.id}') as response:
