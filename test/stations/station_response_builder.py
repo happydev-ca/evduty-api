@@ -12,9 +12,9 @@ class StationResponseBuilder:
                     'name': 'terminal_name',
                     'status': 'inUse',
                     'chargeBoxIdentity': 'identity',
-                    'firmwareVersion': 'version'
+                    'firmwareVersion': 'version',
                 }
-            ]
+            ],
         }
 
     @classmethod

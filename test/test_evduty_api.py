@@ -4,8 +4,7 @@ from http import HTTPStatus
 import aiohttp
 from unittest import IsolatedAsyncioTestCase
 
-from evdutyapi import (ChargingStatus, EVDutyApi, ChargingSession, Terminal,
-                       EVDutyApiError, EVDutyApiInvalidCredentialsError)
+from evdutyapi import ChargingStatus, EVDutyApi, ChargingSession, Terminal, EVDutyApiError, EVDutyApiInvalidCredentialsError
 from evdutyapi.charging_sessions.charging_session_response import ChargingSessionResponse
 from evdutyapi.max_charging_current.max_charging_current_request import MaxChargingCurrentRequest
 from evdutyapi.stations.station_response import StationResponse
@@ -29,11 +28,12 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
                 api = EVDutyApi(self.username, self.password, session)
                 await api.async_authenticate()
 
-                evduty_server.assert_called_with(url='/v1/account/login',
-                                                 method='POST',
-                                                 headers={'Content-Type': 'application/json'},
-                                                 json={'device': {'id': '', 'model': '', 'type': 'ANDROID'},
-                                                       'email': self.username, 'password': self.password})
+                evduty_server.assert_called_with(
+                    url='/v1/account/login',
+                    method='POST',
+                    headers={'Content-Type': 'application/json'},
+                    json={'device': {'id': '', 'model': '', 'type': 'ANDROID'}, 'email': self.username, 'password': self.password},
+                )
 
     async def test_authenticate_invalid_credentials_error(self):
         with EVDutyServerForTest() as evduty_server:
@@ -64,12 +64,13 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
                 await api.async_authenticate()
                 await api.async_authenticate()
 
-                evduty_server.assert_called_n_times_with(times=1,
-                                                         url='/v1/account/login',
-                                                         method='POST',
-                                                         headers={'Content-Type': 'application/json'},
-                                                         json={'device': {'id': '', 'model': '', 'type': 'ANDROID'},
-                                                               'email': self.username, 'password': self.password})
+                evduty_server.assert_called_n_times_with(
+                    times=1,
+                    url='/v1/account/login',
+                    method='POST',
+                    headers={'Content-Type': 'application/json'},
+                    json={'device': {'id': '', 'model': '', 'type': 'ANDROID'}, 'email': self.username, 'password': self.password},
+                )
 
     async def test_reauthorize_when_token_expires(self):
         with EVDutyServerForTest() as evduty_server:
@@ -81,13 +82,13 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
                 await asyncio.sleep(0)
                 await api.async_authenticate()
 
-                evduty_server.assert_called_n_times_with(times=2,
-                                                         url='/v1/account/login',
-                                                         method='POST',
-                                                         headers={'Content-Type': 'application/json',
-                                                                  'Authorization': 'Bearer hello'},
-                                                         json={'device': {'id': '', 'model': '', 'type': 'ANDROID'},
-                                                               'email': self.username, 'password': self.password})
+                evduty_server.assert_called_n_times_with(
+                    times=2,
+                    url='/v1/account/login',
+                    method='POST',
+                    headers={'Content-Type': 'application/json', 'Authorization': 'Bearer hello'},
+                    json={'device': {'id': '', 'model': '', 'type': 'ANDROID'}, 'email': self.username, 'password': self.password},
+                )
 
     async def test_reauthorize_when_token_is_invalid(self):
         with EVDutyServerForTest() as evduty_server:
@@ -103,12 +104,13 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
 
                 await api.async_authenticate()
 
-                evduty_server.assert_called_n_times_with(times=2,
-                                                         url='/v1/account/login',
-                                                         method='POST',
-                                                         headers={'Content-Type': 'application/json'},
-                                                         json={'device': {'id': '', 'model': '', 'type': 'ANDROID'},
-                                                               'email': self.username, 'password': self.password})
+                evduty_server.assert_called_n_times_with(
+                    times=2,
+                    url='/v1/account/login',
+                    method='POST',
+                    headers={'Content-Type': 'application/json'},
+                    json={'device': {'id': '', 'model': '', 'type': 'ANDROID'}, 'email': self.username, 'password': self.password},
+                )
 
     async def test_async_get_stations(self):
         with EVDutyServerForTest() as evduty_server:
@@ -153,13 +155,15 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
 
             async with aiohttp.ClientSession() as session:
                 api = EVDutyApi(self.username, self.password, session)
-                terminal = Terminal(id='terminal_id',
-                                    station_id='station_id',
-                                    name='',
-                                    status=ChargingStatus.available,
-                                    charge_box_identity='',
-                                    firmware_version='',
-                                    session=ChargingSession.no_session())
+                terminal = Terminal(
+                    id='terminal_id',
+                    station_id='station_id',
+                    name='',
+                    status=ChargingStatus.available,
+                    charge_box_identity='',
+                    firmware_version='',
+                    session=ChargingSession.no_session(),
+                )
                 await api.async_set_terminal_max_charging_current(terminal, current=15)
 
                 evduty_server.assert_called_with(
@@ -167,4 +171,5 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
                     method='PUT',
                     data=None,
                     headers={'Content-Type': 'application/json', 'Authorization': 'Bearer token'},
-                    json=MaxChargingCurrentRequest.from_terminal_response(terminal_response, 15))
+                    json=MaxChargingCurrentRequest.from_terminal_response(terminal_response, 15),
+                )

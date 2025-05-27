@@ -9,13 +9,11 @@ class TerminalResponseBuilder:
             'macAddress': '11:22:33:44:AA:BB',
             'localIPAddress': '192.168.1.5',
             'amperage': 30,
-            'chargingProfile': {
-                'chargingRate': 15
-            },
+            'chargingProfile': {'chargingRate': 15},
             'cost': 'any',
             'alternateCost': 'any',
             'sessionTimeLimits': 'any',
-            'costLocal': 0.1234
+            'costLocal': 0.1234,
         }
 
     @classmethod

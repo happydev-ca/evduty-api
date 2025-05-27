@@ -3,13 +3,14 @@ from .. import ChargingProfile, NetworkInfo
 
 
 class TerminalResponse:
-
     @classmethod
     def from_json_to_network_info(cls, data: Dict[str, Any]) -> NetworkInfo:
-        return NetworkInfo(wifi_ssid=data['wifiSSID'],
-                           wifi_rssi=data['wifiRSSI'],
-                           mac_address=data['macAddress'],
-                           ip_address=data['localIPAddress'])
+        return NetworkInfo(
+            wifi_ssid=data['wifiSSID'],
+            wifi_rssi=data['wifiRSSI'],
+            mac_address=data['macAddress'],
+            ip_address=data['localIPAddress'],
+        )
 
     @classmethod
     def from_json_to_charging_profile(cls, data: Dict[str, Any]) -> ChargingProfile:

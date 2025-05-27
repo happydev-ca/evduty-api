@@ -32,5 +32,5 @@ class ChargingSession:
             energy_consumed=0,
             start_date=datetime.min,
             duration=timedelta(seconds=0),
-            cost=0
+            cost=0,
         )

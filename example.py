@@ -11,4 +11,5 @@ async def run():
         stations = await api.async_get_stations()
         print(stations)
 
+
 asyncio.run(run())

@@ -2,7 +2,6 @@ from typing import Any, Dict
 
 
 class MaxChargingCurrentRequest:
-
     @classmethod
     def from_terminal_response(cls, data: Dict[str, Any], current) -> Dict[str, Any]:
         request = data.copy()

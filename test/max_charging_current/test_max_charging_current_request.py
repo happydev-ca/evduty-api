@@ -5,7 +5,6 @@ from ..terminals.terminal_response_builder import TerminalResponseBuilder
 
 
 class MaxChargingCurrentRequestTest(unittest.TestCase):
-
     def test_from_terminal_response_removing_unmodifiable_fields(self):
         response = TerminalResponseBuilder.default().with_cost_local(None).build()
 

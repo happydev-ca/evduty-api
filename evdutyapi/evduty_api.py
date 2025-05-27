@@ -102,4 +102,5 @@ class EVDutyApi:
     @staticmethod
     async def _log(url: str, response: ClientResponse, headers: dict, json: dict = None) -> None:
         LOGGER.debug(
-            f"{url} : Request[[ headers=[{headers}] body=[{json}] ]] - Response[[ status=[{response.status}] headers=[{dict(response.headers)}] body=[{await response.text()}] ]]")
+            f'{url} : Request[[ headers=[{headers}] body=[{json}] ]] - Response[[ status=[{response.status}] headers=[{dict(response.headers)}] body=[{await response.text()}] ]]'
+        )

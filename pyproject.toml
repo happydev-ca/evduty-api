@@ -25,3 +25,9 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["evdutyapi"]
+
+[tool.ruff]
+line-length = 140
+
+[tool.ruff.format]
+quote-style = "single"

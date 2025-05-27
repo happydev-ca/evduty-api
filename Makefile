@@ -1,4 +1,4 @@
-.PHONY : venv test coverage build release
+.PHONY : venv test coverage format build release
 
 venv:
 	python3 -m venv .venv && \
@@ -12,6 +12,9 @@ test:
 coverage:
 	coverage run --branch -m unittest
 	coverage html
+
+format:
+	ruff format
 
 build:
 	python3 -m build

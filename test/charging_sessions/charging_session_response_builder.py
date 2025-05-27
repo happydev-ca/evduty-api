@@ -1,5 +1,6 @@
 from typing import Self
 
+
 class ChargingSessionResponseBuilder:
     def __init__(self):
         self._data = {
@@ -11,11 +12,7 @@ class ChargingSessionResponseBuilder:
             'energyConsumed': 36459.92,
             'chargeStartDate': 1706897191,
             'duration': 77602.7,
-            'station': {
-                'terminal': {
-                    'costLocal': 0.10039
-                }
-            }
+            'station': {'terminal': {'costLocal': 0.10039}},
         }
 
     @classmethod
