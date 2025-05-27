@@ -3,8 +3,7 @@ from http import HTTPStatus
 from logging import Logger, getLogger
 from typing import List
 
-import aiohttp
-from aiohttp import ClientResponse
+from aiohttp import ClientResponse, ClientSession
 
 from . import EVDutyApiError, EVDutyApiInvalidCredentialsError, Station, Terminal
 from .charging_sessions.charging_session_response import ChargingSessionResponse
@@ -18,7 +17,7 @@ LOGGER: Logger = getLogger(__package__)
 class EVDutyApi:
     base_url = 'https://api.evduty.net'
 
-    def __init__(self, username: str, password: str, session: aiohttp.ClientSession):
+    def __init__(self, username: str, password: str, session: ClientSession):
         self.username = username
         self.password = password
         self.session = session
@@ -72,15 +71,18 @@ class EVDutyApi:
         async with await self._get(f'/v1/account/stations/{terminal.station_id}/terminals/{terminal.id}') as response:
             body = await response.json()
             request = MaxChargingCurrentRequest.from_terminal_response(body, current)
-            async with self.session.put(f'{self.base_url}/v1/account/stations/{terminal.station_id}/terminals/{terminal.id}',
-                                        headers=self.headers, json=request) as put_response:
-                await self._log(f'/v1/account/stations/{terminal.station_id}/terminals/{terminal.id}', put_response, self.headers,
-                                json=request)
-                self._raise_on_error(put_response)
+            await self._put(f'/v1/account/stations/{terminal.station_id}/terminals/{terminal.id}', json=request)
 
     async def _get(self, url: str) -> ClientResponse:
         await self.async_authenticate()
         response = await self.session.get(f'{self.base_url}{url}', headers=self.headers)
+        await self._log(url, response, self.headers)
+        self._raise_on_error(response)
+        return response
+
+    async def _put(self, url: str, json: dict) -> ClientResponse:
+        await self.async_authenticate()
+        response = await self.session.put(f'{self.base_url}{url}', headers=self.headers, json=json)
         await self._log(url, response, self.headers)
         self._raise_on_error(response)
         return response
