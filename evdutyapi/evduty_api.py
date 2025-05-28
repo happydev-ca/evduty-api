@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from datetime import timedelta, datetime
 from http import HTTPStatus
 from logging import Logger, getLogger
@@ -31,7 +32,7 @@ class EVDutyApi:
 
         json = {'device': {'id': '', 'model': '', 'type': 'ANDROID'}, 'email': self.username, 'password': self.password}
         async with self.session.post(f'{self.base_url}/v1/account/login', json=json, headers=self.headers) as response:
-            await self._log('/v1/account/login', response, self.headers, json=json)
+            await self._log('POST', '/v1/account/login', response, self.headers, json)
             self._raise_on_authenticate_error(response)
             body = await response.json()
             self.headers['Authorization'] = 'Bearer ' + body['accessToken']
@@ -80,14 +81,14 @@ class EVDutyApi:
     async def _get(self, url: str) -> ClientResponse:
         await self.async_authenticate()
         response = await self.session.get(f'{self.base_url}{url}', headers=self.headers)
-        await self._log(url, response, self.headers)
+        await self._log('GET', url, response, self.headers)
         self._raise_on_error(response)
         return response
 
     async def _put(self, url: str, json: dict) -> ClientResponse:
         await self.async_authenticate()
         response = await self.session.put(f'{self.base_url}{url}', headers=self.headers, json=json)
-        await self._log(url, response, self.headers)
+        await self._log('PUT', url, response, self.headers, json)
         self._raise_on_error(response)
         return response
 
@@ -100,7 +101,8 @@ class EVDutyApi:
             raise EVDutyApiError(response)
 
     @staticmethod
-    async def _log(url: str, response: ClientResponse, headers: dict, json: dict = None) -> None:
-        LOGGER.debug(
-            f'{url} : Request[[ headers=[{headers}] body=[{json}] ]] - Response[[ status=[{response.status}] headers=[{dict(response.headers)}] body=[{await response.text()}] ]]'
-        )
+    async def _log(method: str, url: str, response: ClientResponse, request_headers: dict, request_body: dict = None) -> None:
+        if LOGGER.isEnabledFor(logging.DEBUG):
+            request_log = f'request_headers={request_headers} request_body={request_body}'
+            response_log = f'response_headers={dict(response.headers)} response_body={await response.text()}'
+            LOGGER.debug(f'{response.status} {method} {url} : {request_log} {response_log}')
