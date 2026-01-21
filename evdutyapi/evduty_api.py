@@ -78,6 +78,11 @@ class EVDutyApi:
             request = MaxChargingCurrentRequest.from_terminal_response(body, current)
             await self._put(f'/v1/account/stations/{terminal.station_id}/terminals/{terminal.id}', json=request)
 
+    async def async_get_monthly_report(self, year: int, month: int) -> str:
+        async with await self._get(f'/v1/account/reports/owner/csv?year={year}&month={month}') as response:
+            raw_body = await response.read()
+            return raw_body.decode('latin-1')
+
     async def _get(self, url: str) -> ClientResponse:
         await self.async_authenticate()
         response = await self.session.get(f'{self.base_url}{url}', headers=self.headers)

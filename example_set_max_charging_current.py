@@ -17,7 +17,7 @@ async def run():
         print(f'Before change {terminal.charging_profile}')
 
         print('Changing max current to', current)
-        await api.async_set_terminal_max_charging_current(terminal, current=current)
+        await api.async_set_terminal_max_charging_current(terminal, current)
 
         terminal = await get_first_terminal(api)
         print(f'After change {terminal.charging_profile}')

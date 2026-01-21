@@ -173,3 +173,14 @@ class EVdutyApiTest(IsolatedAsyncioTestCase):
                     headers={'Content-Type': 'application/json', 'Authorization': 'Bearer token'},
                     json=MaxChargingCurrentRequest.from_terminal_response(terminal_response, 15),
                 )
+
+    async def test_async_get_monthly_report(self):
+        with EVDutyServerForTest() as evduty_server:
+            evduty_server.prepare_login_response()
+            evduty_server.prepare_monthly_report(2025, 12, 'some csv')
+
+            async with aiohttp.ClientSession() as session:
+                api = EVDutyApi(self.username, self.password, session)
+                report = await api.async_get_monthly_report(2025, 12)
+
+                self.assertEqual(report, '"some csv"')

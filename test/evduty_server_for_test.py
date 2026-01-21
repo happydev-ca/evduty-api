@@ -52,6 +52,13 @@ class EVDutyServerForTest:
             repeat=True,
         )
 
+    def prepare_monthly_report(self, year, month, body):
+        self.server.get(
+            url=f'{self.base_url}/v1/account/reports/owner/csv?year={year}&month={month}',
+            status=HTTPStatus.OK,
+            payload=body,
+            repeat=True,
+        )
     def assert_called_with(self, url, method, *args, **kwargs):
         self.server.assert_called_with(f'{self.base_url}{url}', method, *args, **kwargs)
 
